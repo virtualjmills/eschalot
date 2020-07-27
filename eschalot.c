@@ -785,7 +785,13 @@ setoptions(int argc, char *argv[])
 			break;
 		case 'p':
 			pflag = 1;
+			// Transiently silence GCC 8.x era [-Wstringop-truncation] via parens-wrap does not work.
+			// Silencing via #pragma but really should be refactored per discussion of gap in POSIX:
+			//    https://stackoverflow.com/questions/50198319/gcc-8-wstringop-truncation-what-is-the-good-practice
+			#pragma GCC diagnostic push
+			#pragma GCC diagnostic ignored "-Wstringop-truncation"
 			strncpy(prefix, optarg, ONION_LENP1);
+			#pragma GCC diagnostic pop
 			minlen = maxlen = prefixlen = strnlen(prefix, ONION_LENP1);
 			if (prefixlen > 16 || prefixlen < 1)
 				usage();
